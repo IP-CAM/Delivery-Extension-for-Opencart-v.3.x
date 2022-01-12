@@ -49,40 +49,34 @@ class ModelExtensionModuleDeliveryNik extends Model {
 
         $delivery_info = $this->db->query("SELECT * FROM " . DB_PREFIX . "delivery d LEFT JOIN " . DB_PREFIX . "delivery_description dd ON (d.delivery_id = dd.delivery_id) WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND d.delivery_id = '" . (int)$delivery_id . "'");
 
-        var_dump($delivery_info);
+        if ($delivery_info->num_rows) {
+            $status = true;
+        } else {
+            $status = false;
+        }
 
-//        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('shipping_flat_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
-//
-//        if (!$this->config->get('shipping_flat_geo_zone_id')) {
-//            $status = true;
-//        } elseif ($query->num_rows) {
-//            $status = true;
-//        } else {
-//            $status = false;
-//        }
-//
-//        $method_data = array();
-//
-//        if ($status) {
-//            $quote_data = array();
-//
-//            $quote_data['flat'] = array(
-//                'code'         => 'flat.flat',
-//                'title'        => $this->language->get('text_description'),
-//                'cost'         => $this->config->get('shipping_flat_cost'),
-//                'tax_class_id' => $this->config->get('shipping_flat_tax_class_id'),
-//                'text'         => $this->currency->format($this->tax->calculate($this->config->get('shipping_flat_cost'), $this->config->get('shipping_flat_tax_class_id'), $this->config->get('config_tax')), $this->session->data['currency'])
-//            );
-//
-//            $method_data = array(
-//                'code'       => 'flat',
-//                'title'      => $this->language->get('text_title'),
-//                'quote'      => $quote_data,
-//                'sort_order' => $this->config->get('shipping_flat_sort_order'),
-//                'error'      => false
-//            );
-//        }
-//
-//        return $method_data;
+        $method_data = array();
+
+        if ($status) {
+            $quote_data = array();
+
+            $quote_data[$delivery_info->row['delivery_id']] = array(
+                'code'         => 'delivery.' . $delivery_info->row['delivery_id'],
+                'title'        => $delivery_info->row['name'],
+                'cost'         => $delivery_info->row['cost'],
+                'tax_class_id' => $delivery_info->row['tax_class_id'],
+                'text'         => $this->currency->format($this->tax->calculate($delivery_info->row['cost'], $delivery_info->row['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'])
+            );
+
+            $method_data = array(
+                'code'       => $delivery_info->row['delivery_id'],
+                'title'      => $delivery_info->row['name'],
+                'quote'      => $quote_data,
+                'sort_order' => $delivery_info->row['sort_order'],
+                'error'      => false
+            );
+        }
+
+        return $method_data;
     }
 }

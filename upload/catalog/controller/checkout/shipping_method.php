@@ -10,8 +10,6 @@ class ControllerCheckoutShippingMethod extends Controller {
 			$this->load->model('setting/extension');
 			$this->load->model('extension/module/delivery_nik');
 
-			$this->model_extension_module_delivery_nik->getQuote(1, $this->session->data['shipping_address']);
-
 			$results = $this->model_setting_extension->getExtensions('shipping');
 
 			foreach ($results as $result) {
@@ -30,6 +28,27 @@ class ControllerCheckoutShippingMethod extends Controller {
 					}
 				}
 			}
+
+            $deliveries = $this->model_extension_module_delivery_nik->getDeliveries();
+
+			foreach ($deliveries as $delivery) {
+			    if ($delivery['status']) {
+                    $quote = $this->model_extension_module_delivery_nik->getQuote($delivery['delivery_id'], $this->session->data['shipping_address']);
+
+                    if ($quote) {
+                        $method_data[$delivery['delivery_id']] = array(
+                            'title'      => $quote['title'],
+                            'quote'      => $quote['quote'],
+                            'sort_order' => $quote['sort_order'],
+                            'error'      => $quote['error']
+                        );
+                    }
+                }
+            }
+
+//			echo "<pre>";
+//			print_r($method_data);
+//			echo "</pre>";
 
 			$sort_order = array();
 
@@ -65,7 +84,7 @@ class ControllerCheckoutShippingMethod extends Controller {
 		} else {
 			$data['comment'] = '';
 		}
-		
+
 		$this->response->setOutput($this->load->view('checkout/shipping_method', $data));
 	}
 
