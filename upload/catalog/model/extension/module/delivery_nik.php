@@ -45,11 +45,13 @@ class ModelExtensionModuleDeliveryNik extends Model {
     }
 
     public function getQuote($delivery_id, $address) {
-        $this->load->language('extension/shipping/flat');
-
         $delivery_info = $this->db->query("SELECT * FROM " . DB_PREFIX . "delivery d LEFT JOIN " . DB_PREFIX . "delivery_description dd ON (d.delivery_id = dd.delivery_id) WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND d.delivery_id = '" . (int)$delivery_id . "'");
 
-        if ($delivery_info->num_rows) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$delivery_info->row['geo_zone_id'] . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+
+        if (!$delivery_info->row['geo_zone_id']) {
+            $status = true;
+        } elseif ($query->num_rows) {
             $status = true;
         } else {
             $status = false;
@@ -61,7 +63,7 @@ class ModelExtensionModuleDeliveryNik extends Model {
             $quote_data = array();
 
             $quote_data[$delivery_info->row['delivery_id']] = array(
-                'code'         => 'delivery.' . $delivery_info->row['delivery_id'],
+                'code'         => 'delivery' . $delivery_info->row['delivery_id'] . '.' . $delivery_info->row['delivery_id'],
                 'title'        => $delivery_info->row['name'],
                 'cost'         => $delivery_info->row['cost'],
                 'tax_class_id' => $delivery_info->row['tax_class_id'],

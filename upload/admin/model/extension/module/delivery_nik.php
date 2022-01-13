@@ -38,7 +38,7 @@ class ModelExtensionModuleDeliveryNik extends Model {
     }
 
     public function editDelivery($delivery_id, $data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "delivery SET `cost` = '" . $this->db->escape($data['cost']) . "', `tax_class_id` = '" . (int)$data['tax_class_id'] . "', `geo_zone_id` = '" . (int)$data['geo_zone_id'] . "', `sort_order` = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "' WHERE delivery_id = '" . $delivery_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "delivery SET `cost` = '" . $this->db->escape($data['cost']) . "', `tax_class_id` = '" . (int)$data['tax_class_id'] . "', `geo_zone_id` = '" . (int)$data['geo_zone_id'] . "', `sort_order` = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "' WHERE delivery_id = '" . (int)$delivery_id . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "delivery_description WHERE delivery_id = '" . (int)$delivery_id . "'");
 
@@ -68,7 +68,7 @@ class ModelExtensionModuleDeliveryNik extends Model {
 
         foreach ($query->rows as $result) {
             $delivery_description_data[$result['language_id']] = array(
-                'name'            => $result['name'],
+                'name' => $result['name'],
             );
         }
 

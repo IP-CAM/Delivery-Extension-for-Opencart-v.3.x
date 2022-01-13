@@ -29,26 +29,24 @@ class ControllerCheckoutShippingMethod extends Controller {
 				}
 			}
 
-            $deliveries = $this->model_extension_module_delivery_nik->getDeliveries();
+			if ($this->config->get('module_delivery_nik_status')) {
+                $deliveries = $this->model_extension_module_delivery_nik->getDeliveries();
 
-			foreach ($deliveries as $delivery) {
-			    if ($delivery['status']) {
-                    $quote = $this->model_extension_module_delivery_nik->getQuote($delivery['delivery_id'], $this->session->data['shipping_address']);
+                foreach ($deliveries as $delivery) {
+                    if ($delivery['status']) {
+                        $quote = $this->model_extension_module_delivery_nik->getQuote($delivery['delivery_id'], $this->session->data['shipping_address']);
 
-                    if ($quote) {
-                        $method_data[$delivery['delivery_id']] = array(
-                            'title'      => $quote['title'],
-                            'quote'      => $quote['quote'],
-                            'sort_order' => $quote['sort_order'],
-                            'error'      => $quote['error']
-                        );
+                        if ($quote) {
+                            $method_data['delivery' . $delivery['delivery_id']] = array(
+                                'title' => $quote['title'],
+                                'quote' => $quote['quote'],
+                                'sort_order' => $quote['sort_order'],
+                                'error' => $quote['error']
+                            );
+                        }
                     }
                 }
             }
-
-//			echo "<pre>";
-//			print_r($method_data);
-//			echo "</pre>";
 
 			$sort_order = array();
 
